@@ -1,10 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   calculateDiscount,
   canDrive,
+  createProduct,
+  fetchData,
   getCoupons,
   isPriceInRange,
   isValidUsername,
+  Stack,
   validateUserInput,
 } from "../core";
 
@@ -91,7 +94,6 @@ describe("isPriceInRange", () => {
   });
 });
 
-
 describe("isValidUsername", () => {
   describe("negative case", () => {
     it("returns false when the length of username is lesser than minLength ", () => {
@@ -144,6 +146,111 @@ describe("canDrive", () => {
 
     it("returns true when age is greater than legal driving age for UK", () => {
       expect(canDrive(20, "UK")).toBe(true);
+    });
+  });
+});
+
+describe("fetchData", () => {
+  it("returns an array of numbers", async () => {
+    const data = await fetchData();
+    expect(data).toEqual([1, 2, 3]);
+  });
+});
+
+describe("Stack", () => {
+  let stack;
+  beforeEach(() => {
+    stack = new Stack();
+  });
+  describe("initial state", () => {
+    it("should be empty when created", () => {
+      expect(stack.isEmpty()).toBe(true);
+    });
+    it("should have size 0  when created", () => {
+      expect(stack.size()).toBe(0);
+    });
+  });
+  describe("push", () => {
+    it("should have size 1 when one item is pushed", () => {
+      stack.push("Apple");
+      expect(stack.size()).toBe(1);
+      expect(stack.isEmpty()).toBe(false);
+    });
+
+    it("should have size 2 when two items are pushed ", () => {
+      stack.push("Apple");
+      stack.push("Orange");
+      expect(stack.size()).toBe(2);
+    });
+  });
+
+  describe("pop", () => {
+    describe("when stack is empty", () => {
+      it("returns error when it is empty", () => {
+        expect(() => stack.pop()).toThrow("Stack is empty");
+      });
+    });
+
+    describe("when stack is not empty", () => {
+      it("returns the last pushed value", () => {
+        stack.push("Apple");
+        expect(stack.pop()).toBe("Apple");
+      });
+    });
+  });
+
+  describe("peek", () => {
+    describe("When stack is empty", () => {
+      it("returns error when it is empty", () => {
+        expect(() => stack.peek()).toThrow("Stack is empty");
+      });
+    });
+    describe("When stack is not empty", () => {
+      it("returns last element of an array", () => {
+        stack.push("Apple");
+        stack.push("Orange");
+        expect(stack.peek()).toBe("Orange");
+      });
+    });
+  });
+  describe("clear", () => {
+    it("removes all items from the stack", () => {
+      stack.push("Apple");
+      stack.push("Orange");
+      stack.clear();
+      expect(stack.size()).toBe(0);
+      expect(stack.isEmpty()).toBe(true);
+    });
+  });
+});
+
+describe("createProduct", () => {
+  describe("negative case", () => {
+    it("returns error when the product name is not present", () => {
+      expect(createProduct({ name: null, price: 2 })).toEqual({
+        success: false,
+        error: {
+          code: "invalid_name",
+          message: "Name is missing",
+        },
+      });
+    });
+    it("returns error when the product price is less than 0", () => {
+      expect(createProduct({ name: "Apple", price: -2 })).toEqual({
+        success: false,
+        error: {
+          code: "invalid_price",
+          message: "Price is missing",
+        },
+      });
+    });
+  });
+  describe("positive case", () => {
+    it("returns success response when the product name and price is valid", () => {
+      expect(createProduct({ name: "Apple", price: 200 })).toEqual({
+        success: true,
+        message: "Product was successfully published",
+      });
     });
   });
 });
